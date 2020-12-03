@@ -23,17 +23,12 @@ object FilterUtils {
 		}.reduce(Expressions.booleanOperation(Ops.EQ, ConstantImpl.create(1), ConstantImpl.create(1)), BooleanExpression::and)
 	}
 
-	@Suppress
-	private fun create(rootPath: EntityPathBase<*>, filter: PropertyFilter): Constant<*> {
-		val newVal: Any? = filter.value
-		try {
-			val path: Path<*> = PathUtils.getSubPath(rootPath, filter.property).orNull()!!
-			if (Enum::class.java.isAssignableFrom(path.type) && filter.value is String) {
-				return ConstantImpl.create(java.lang.Enum.valueOf(path.type as Class<Enum<*>>, filter.value))
+	private fun create(rootPath: EntityPathBase<*>, filter: PropertyFilter): Constant<*> =
+		PathUtils.getSubPath(rootPath, filter.property).orNull()!!.let {
+			when {
+				Enum::class.java.isAssignableFrom(it.type) && filter.value is String -> ConstantImpl.create(java.lang.Enum.valueOf(it.type as Class<Enum<*>>, filter.value))
+				else -> ConstantImpl.create(filter.value)
 			}
-		} catch (e: Exception) {
-			throw RuntimeException(e)
 		}
-		return ConstantImpl.create<Any>(newVal)
-	}
+
 }

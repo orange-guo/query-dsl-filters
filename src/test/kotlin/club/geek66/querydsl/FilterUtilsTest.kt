@@ -2,6 +2,7 @@ package club.geek66.querydsl
 
 import arrow.core.nel
 import club.geek66.querydsl.FilterUtils.generateExpression
+import club.geek66.querydsl.db.Config
 import club.geek66.querydsl.db.Country
 import club.geek66.querydsl.db.Orders
 import club.geek66.querydsl.db.QUser
@@ -9,18 +10,13 @@ import club.geek66.querydsl.db.User
 import club.geek66.querydsl.db.UserRepository
 import com.google.common.collect.Lists
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.SpringBootConfiguration
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration
-import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import kotlin.test.Test
 
 /**
  * @author: orange
@@ -31,15 +27,8 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 @SpringBootTest
 @ExtendWith(SpringExtension::class)
-@ContextConfiguration(classes = [FilterUtilsTest.Config::class])
+@ContextConfiguration(classes = [Config::class])
 class FilterUtilsTest {
-
-	@EntityScan
-	@TestConfiguration
-	@EnableJpaRepositories
-	@SpringBootConfiguration
-	@EnableAutoConfiguration
-	internal class Config
 
 	@Autowired
 	private lateinit var repo: UserRepository
@@ -65,7 +54,6 @@ class FilterUtilsTest {
 
 	@Test
 	fun testEnumEq() {
-
 		val smith: User = User().apply {
 			name = "Smith"
 			country = Country.US
