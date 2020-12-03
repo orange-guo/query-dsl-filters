@@ -1,14 +1,13 @@
 package club.geek66.querydsl
 
 /**
- *
  * @author: orange
- * @date: 2020/12/2
- * @time: 下午5:35
+ * @date: 2020/12/3
+ * @time: 上午9:52
  * @copyright: Copyright 2020 by orange
  */
 data class PropertyFilter(
 	val property: String,
 	val operator: String,
-	val value: String?
+	val value: Any? = null
 )
