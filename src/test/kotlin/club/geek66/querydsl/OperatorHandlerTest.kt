@@ -1,7 +1,7 @@
 package club.geek66.querydsl
 
 import arrow.core.Either
-import club.geek66.querydsl.OperatorUtils.parseOps
+import club.geek66.querydsl.OperatorHandler.parseOps
 import com.querydsl.core.types.Ops
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
  * @time: 下午4:13
  * @copyright: Copyright 2020 by orange
  */
-internal class OperatorUtilsTest {
+internal class OperatorHandlerTest {
 
 	@Test
 	fun testParseOps() {

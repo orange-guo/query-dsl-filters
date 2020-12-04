@@ -10,23 +10,24 @@ import com.querydsl.core.types.Ops
  * @time: 下午4:11
  * @copyright: Copyright 2020 by orange
  */
-object OperatorUtils {
+object OperatorHandler {
 
 	class ParseOpsError(
-		val msg: String
+		val msg: String,
 	)
 
 	fun parseOps(operator: String): Either<ParseOpsError, Ops> =
-		aliasMap[operator]
+		supportedOperator[operator]
 			.toOption()
 			.toEither { ParseOpsError("Nonsupport operator $operator") }
 
-	private val aliasMap = mapOf(
+	private val supportedOperator = mapOf(
 		">" to Ops.GT, "GT" to Ops.GT,
 		"<" to Ops.LT, "LT" to Ops.LT,
 		">=" to Ops.GOE, "GOE" to Ops.GOE,
 		"<=" to Ops.LOE, "LOE" to Ops.LOE,
 		"==" to Ops.EQ, "EQ" to Ops.EQ,
-		"!=" to Ops.NE, "NE" to Ops.NE
+		"!=" to Ops.NE, "NE" to Ops.NE,
+		"LIKE" to Ops.LIKE, "" to Ops.LIKE_IC
 	)
 }

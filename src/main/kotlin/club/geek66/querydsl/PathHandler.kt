@@ -12,7 +12,7 @@ import com.querydsl.core.types.dsl.BeanPath
  * @time: 下午3:45
  * @copyright: Copyright 2020 by orange
  */
-object PathUtils {
+object PathHandler {
 
 	fun getSubPath(rootPath: BeanPath<*>, propExpression: String): Either<FindSubPathError, Path<*>> {
 		val path: Either<FindSubPathError, Path<*>> = when {

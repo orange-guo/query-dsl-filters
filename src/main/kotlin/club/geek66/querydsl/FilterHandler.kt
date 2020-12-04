@@ -16,16 +16,22 @@ import com.querydsl.core.types.dsl.Expressions
  */
 object FilterHandler {
 
-	fun generateFilterExpression(entityPathBase: EntityPathBase<*>, filters: Set<PropertyFilter>): BooleanExpression {
+	// 数字
+	// 日期
+	// 字符串
+	// 布尔
+	// 枚举
+	// 集合
+	fun generateFilterExpression(entityPath: EntityPathBase<*>, filters: Set<PropertyFilter>): BooleanExpression {
 		return filters.stream().map { filter: PropertyFilter ->
-			val subPath: Path<*> = PathUtils.getSubPath(entityPathBase, filter.property).orNull()!!
-			Expressions.booleanOperation(Ops.valueOf(filter.operator), subPath, create(entityPathBase, filter)) as BooleanExpression
+			val subPath: Path<*> = PathHandler.getSubPath(entityPath, filter.property).orNull()!!
+			Expressions.booleanOperation(Ops.valueOf(filter.operator), subPath, create(entityPath, filter)) as BooleanExpression
 		}.reduce(Expressions.booleanOperation(Ops.EQ, ConstantImpl.create(1), ConstantImpl.create(1)), BooleanExpression::and)
 	}
 
 	@Suppress(names = ["UNCHECKED_CAST"])
 	private fun create(rootPath: EntityPathBase<*>, filter: PropertyFilter): Constant<*> =
-		PathUtils.getSubPath(rootPath, filter.property).orNull()!!.let {
+		PathHandler.getSubPath(rootPath, filter.property).orNull()!!.let {
 			when {
 				Enum::class.java.isAssignableFrom(it.type) && filter.value is String -> ConstantImpl.create(java.lang.Enum.valueOf(it.type as Class<Enum<*>>, filter.value))
 				else -> ConstantImpl.create(filter.value)
