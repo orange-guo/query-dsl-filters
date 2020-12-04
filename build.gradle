@@ -1,0 +1,58 @@
+buildscript {
+	repositories {
+		maven { url "https://mirrors.huaweicloud.com/repository/maven/" }
+		maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+		jcenter()
+	}
+}
+
+plugins {
+	id("org.springframework.boot") version "2.3.2.RELEASE"
+	id("org.jetbrains.kotlin.plugin.allopen") version "1.4.20"
+	id("io.spring.dependency-management") version "1.0.8.RELEASE"
+	id("java")
+}
+
+repositories {
+	maven { url "https://mirrors.huaweicloud.com/repository/maven/" }
+	maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+	jcenter()
+}
+
+dependencies {
+	implementation(
+		"io.vavr:vavr:0.10.3",
+		"com.querydsl:querydsl-jpa:4.4.0",
+		'commons-beanutils:commons-beanutils:1.9.3'
+	)
+
+	compileOnly("org.projectlombok:lombok:1.18.16")
+	testCompileOnly("org.projectlombok:lombok:1.18.16")
+
+	annotationProcessor("org.projectlombok:lombok:1.18.16")
+
+	testAnnotationProcessor "com.querydsl:querydsl-apt:4.4.0:jpa"
+	testAnnotationProcessor "org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.2.Final"
+	testAnnotationProcessor "org.projectlombok:lombok:1.18.16"
+	testAnnotationProcessor "javax.annotation:javax.annotation-api"
+
+	testImplementation "org.junit.jupiter:junit-jupiter:5.6.0"
+	testImplementation "org.springframework.boot:spring-boot-starter-data-jpa"
+	testImplementation "com.h2database:h2"
+	testImplementation "org.springframework.boot:spring-boot-starter"
+	testImplementation("org.springframework.boot:spring-boot-starter-test") {
+		exclude(group: "org.junit.vintage", module: "junit-vintage-engine")
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir "$buildDir/generated/source/main"
+		}
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
