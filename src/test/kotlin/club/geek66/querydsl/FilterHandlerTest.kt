@@ -1,13 +1,12 @@
 package club.geek66.querydsl
 
 import arrow.core.nel
-import club.geek66.querydsl.FilterHandler.generateExpression
+import club.geek66.querydsl.FilterHandler.generateFilterExpression
 import club.geek66.querydsl.db.Country
 import club.geek66.querydsl.db.Orders
 import club.geek66.querydsl.db.QUser
 import club.geek66.querydsl.db.User
 import club.geek66.querydsl.db.UserRepository
-import com.google.common.collect.Lists
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,76 +34,98 @@ class FilterHandlerTest {
 	private lateinit var repo: UserRepository
 
 	@Test
-	fun makesureDbIsEmpty() {
+	fun makeSureDbIsEmpty() {
 		Assertions.assertEquals(0, repo.findAll().size)
-		val user = User()
-		user.name = "Jack"
-		repo.save(user)
+
+		repo.save(User { name = "Jack" })
+
 		Assertions.assertEquals(1, repo.findAll().size)
 	}
 
 	@Test
 	fun testStringLike() {
-		val user = User()
-		user.name = "Jack"
-		repo.save(user)
-		val expression = generateExpression(QUser.user, PropertyFilter("name", "LIKE", "Jack").nel().toSet())
-		val savedUser = Lists.newArrayList(repo.findAll(expression)).first()!!
+		User {
+			name = "Jack"
+		}.let(repo::save)
+		val savedUser = generateFilterExpression(QUser.user, PropertyFilter("name", "LIKE", "Jack").nel().toSet())
+			.let(repo::findAll)
+			.first()!!
 		Assertions.assertEquals("Jack", savedUser.name)
 	}
 
 	@Test
 	fun testEnumEq() {
-		val smith: User = User().apply {
+		User {
 			name = "Smith"
 			country = Country.US
-		}
-		repo.save(smith)
-		val expression = generateExpression(QUser.user, PropertyFilter("country", "EQ", "US").nel().toSet())
-		val foundSmith = Lists.newArrayList(repo.findAll(expression)).first()!!
-		Assertions.assertEquals(Country.US, foundSmith.country)
+		}.let(repo::save)
+
+		generateFilterExpression(QUser.user, PropertyFilter("country", "EQ", "US").nel().toSet())
+			.let(repo::findAll)
+			.first()!!.let { smith ->
+				Assertions.assertEquals(Country.US, smith.country)
+			}
 	}
 
 	@Test
 	fun testCascadingQuery() {
-		val user1: User = User().apply {
-			country = Country.US
-			name = "User1"
-			order = Orders().apply {
-				title = "User1's title"
+		setOf(
+			User {
+				country = Country.US
+				name = "User1"
+				order = Orders().apply {
+					title = "User1's title"
+				}
+			},
+			User {
+				country = Country.US
+				name = "User2"
+				order = Orders().apply {
+					title = "User2's title"
+				}
 			}
-		}
+		).let(repo::saveAll)
 
-		val user2: User = User().apply {
-			country = Country.US
-			name = "User2"
-			order = Orders().apply {
-				title = "User2's title"
+		generateFilterExpression(QUser.user, PropertyFilter("order.title", "EQ", "User1's title").nel().toSet())
+			.let(repo::findAll)
+			.first()!!.let { user1 ->
+				Assertions.assertEquals(user1.name, "User1")
+				Assertions.assertEquals(user1.order.title, "User1's title")
 			}
-		}
-		repo.save(user1)
-		repo.save(user2)
-		val expression = generateExpression(QUser.user, PropertyFilter("order.title", "EQ", "User1's title").nel().toSet())
-		val user = Lists.newArrayList(repo.findAll(expression)).first()!!
-		Assertions.assertEquals(user.name, "User1")
-		Assertions.assertEquals(user.order.title, "User1's title")
 	}
 
 	@Test
 	fun testNumberCompare() {
-		val user1: User = User().apply {
+		User {
 			country = Country.US
 			name = "User1"
 			order = Orders().apply {
 				title = "User1's title"
 			}
 			money = 5L
-		}
-		repo.save(user1)
-		val expression = generateExpression(QUser.user, PropertyFilter(property = "money", operator = "GT", value = 4).nel().toSet())
-		val user = repo.findAll(expression).first()!!
-		Assertions.assertEquals(user.name, "User1")
-		Assertions.assertEquals(user.order.title, "User1's title")
+		}.let(repo::save)
+
+		generateFilterExpression(QUser.user, PropertyFilter(property = "money", operator = "GT", value = 4).nel().toSet())
+			.let(repo::findAll).first()!!.let { mooneyGt4User ->
+				Assertions.assertEquals(mooneyGt4User.name, "User1")
+				Assertions.assertEquals(mooneyGt4User.order.title, "User1's title")
+			}
+	}
+
+	@Test
+	fun testNameLike() {
+		setOf(
+			User { name = "Jack" },
+			User { name = "Tom" },
+			User { name = "Tim" },
+			User { name = "Jobs" }
+		).let(repo::saveAll)
+		generateFilterExpression(QUser.user, PropertyFilter(property = "name", operator = "LIKE", value = "%T%").nel().toSet())
+			.let(repo::findAll)
+			.toSet()
+			.let { nameLikeTUsers ->
+				Assertions.assertEquals(2, nameLikeTUsers.size)
+			}
 	}
 
 }

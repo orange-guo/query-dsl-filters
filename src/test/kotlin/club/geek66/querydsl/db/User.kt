@@ -1,7 +1,5 @@
 package club.geek66.querydsl.db
 
-import club.geek66.querydsl.db.Country
-import club.geek66.querydsl.db.Orders
 import javax.persistence.CascadeType
 import javax.persistence.Entity
 import javax.persistence.EnumType
@@ -19,6 +17,12 @@ import javax.persistence.OneToOne
  */
 @Entity
 class User {
+
+	constructor()
+
+	constructor(consume: User.() -> Unit) {
+		this.consume()
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

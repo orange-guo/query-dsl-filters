@@ -16,7 +16,7 @@ import com.querydsl.core.types.dsl.Expressions
  */
 object FilterHandler {
 
-	fun generateExpression(entityPathBase: EntityPathBase<*>, filters: Set<PropertyFilter>): BooleanExpression {
+	fun generateFilterExpression(entityPathBase: EntityPathBase<*>, filters: Set<PropertyFilter>): BooleanExpression {
 		return filters.stream().map { filter: PropertyFilter ->
 			val subPath: Path<*> = PathUtils.getSubPath(entityPathBase, filter.property).orNull()!!
 			Expressions.booleanOperation(Ops.valueOf(filter.operator), subPath, create(entityPathBase, filter)) as BooleanExpression

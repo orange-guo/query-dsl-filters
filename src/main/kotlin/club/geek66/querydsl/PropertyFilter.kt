@@ -9,5 +9,5 @@ package club.geek66.querydsl
 data class PropertyFilter(
 	val property: String,
 	val operator: String,
-	val value: Any? = null
+	val value: Any? = null,
 )
