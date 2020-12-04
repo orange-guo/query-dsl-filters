@@ -1,8 +1,7 @@
 package club.geek66.querydsl
 
 import arrow.core.nel
-import club.geek66.querydsl.FilterUtils.generateExpression
-import club.geek66.querydsl.db.Config
+import club.geek66.querydsl.FilterHandler.generateExpression
 import club.geek66.querydsl.db.Country
 import club.geek66.querydsl.db.Orders
 import club.geek66.querydsl.db.QUser
@@ -12,8 +11,9 @@ import com.google.common.collect.Lists
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ContextConfiguration
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import kotlin.test.Test
@@ -24,17 +24,18 @@ import kotlin.test.Test
  * @time: 上午9:56
  * @copyright: Copyright 2020 by orange
  */
+@EntityScan
 @Transactional
-@SpringBootTest
+@TestConfiguration
+@EnableAutoConfiguration
 @ExtendWith(SpringExtension::class)
-@ContextConfiguration(classes = [Config::class])
-class FilterUtilsTest {
+class FilterHandlerTest {
 
 	@Autowired
 	private lateinit var repo: UserRepository
 
 	@Test
-	fun testRollback() {
+	fun makesureDbIsEmpty() {
 		Assertions.assertEquals(0, repo.findAll().size)
 		val user = User()
 		user.name = "Jack"

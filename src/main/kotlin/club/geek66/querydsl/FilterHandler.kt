@@ -14,7 +14,7 @@ import com.querydsl.core.types.dsl.Expressions
  * @time: 上午9:47
  * @copyright: Copyright 2020 by orange
  */
-object FilterUtils {
+object FilterHandler {
 
 	fun generateExpression(entityPathBase: EntityPathBase<*>, filters: Set<PropertyFilter>): BooleanExpression {
 		return filters.stream().map { filter: PropertyFilter ->
@@ -23,6 +23,7 @@ object FilterUtils {
 		}.reduce(Expressions.booleanOperation(Ops.EQ, ConstantImpl.create(1), ConstantImpl.create(1)), BooleanExpression::and)
 	}
 
+	@Suppress(names = ["UNCHECKED_CAST"])
 	private fun create(rootPath: EntityPathBase<*>, filter: PropertyFilter): Constant<*> =
 		PathUtils.getSubPath(rootPath, filter.property).orNull()!!.let {
 			when {
