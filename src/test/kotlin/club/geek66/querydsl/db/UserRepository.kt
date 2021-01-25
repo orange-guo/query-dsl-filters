@@ -9,4 +9,4 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor
  * @time: 上午9:58
  * @copyright: Copyright 2020 by orange
  */
-internal interface UserRepository : JpaRepository<User?, Long?>, QuerydslPredicateExecutor<User?>
+internal interface UserRepository : JpaRepository<User, Long>, QuerydslPredicateExecutor<User>

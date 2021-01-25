@@ -1,4 +1,3 @@
-/*
 package club.geek66.querydsl
 
 import arrow.core.nel
@@ -16,14 +15,6 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import kotlin.test.Test
-
-*/
-/**
- * @author: orange
- * @date: 2020/12/3
- * @time: 上午9:56
- * @copyright: Copyright 2020 by orange
- *//*
 
 @EntityScan
 @Transactional
@@ -130,4 +121,4 @@ class FilterHandlerTest {
 			}
 	}
 
-}*/
+}

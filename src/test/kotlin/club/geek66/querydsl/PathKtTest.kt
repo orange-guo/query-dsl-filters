@@ -14,7 +14,7 @@ internal class PathKtTest {
 
 	@Test
 	fun withPathMap() {
-		replacePath(setOf(PathFilter("userAddressId", "=", 3)), mapOf("user.address.id" to "user.address.id")).let {
+		replacePathAliases(setOf(PathFilter("userAddressId", "=", 3)), mapOf("user.address.id" to "user.address.id")).let {
 			Assertions.assertEquals(it.size, 1)
 			Assertions.assertEquals(it.first(), PathFilter("user.address.id", "=", 3))
 		}

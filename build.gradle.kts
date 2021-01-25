@@ -19,6 +19,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
 
 	implementation("io.arrow-kt:arrow-core:0.11.0")
 	implementation("io.arrow-kt:arrow-syntax:0.11.0")

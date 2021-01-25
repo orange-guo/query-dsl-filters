@@ -4,12 +4,17 @@ import arrow.core.Either
 import arrow.core.ListK
 import arrow.core.computations.either
 import arrow.core.extensions.list.foldable.foldLeft
+import arrow.syntax.function.invoke
 import arrow.core.flatMap
 import arrow.core.k
-import arrow.syntax.function.invoke
 import com.querydsl.core.types.ConstantImpl
+import com.querydsl.core.types.Ops
 import com.querydsl.core.types.Path
+import com.querydsl.core.types.dsl.BooleanExpression
+import com.querydsl.core.types.dsl.BooleanOperation
 import com.querydsl.core.types.dsl.EntityPathBase
+import com.querydsl.core.types.dsl.Expressions
+import kotlinx.coroutines.runBlocking
 
 /**
  *
@@ -20,10 +25,10 @@ import com.querydsl.core.types.dsl.EntityPathBase
  */
 data class PathError(val msg: String)
 
-fun isRootPathObject(rootPath: EntityPathBase<*>): Either<PathError, EntityPathBase<*>> =
+fun isRootPathObject(entityPath: EntityPathBase<*>): Either<PathError, EntityPathBase<*>> =
 	when {
-		rootPath.root.type != rootPath.type -> Either.left(PathError("Path $rootPath is not root"))
-		else -> Either.right(rootPath)
+		entityPath.root.type != entityPath.type -> Either.left(PathError("Path $entityPath is not root"))
+		else -> Either.right(entityPath)
 	}
 
 fun getProperty(entityPath: EntityPathBase<*>, property: String): Either<PathError, Path<*>> =
@@ -47,31 +52,35 @@ fun getProperty(entityPath: Path<*>, property: String): Either<PathError, Path<*
 		else -> Either.left(PathError("Property $property in $entityPath is not a entity path"))
 	}
 
-fun getProperty(rootPath: EntityPathBase<*>, propertyLevel: List<String>): Either<PathError, Path<*>> =
-	propertyLevel.foldLeft(isRootPathObject(rootPath) as Either<PathError, Path<*>>) { entity, property ->
+fun getProperty(entityPath: EntityPathBase<*>, propertyLevel: List<String>): Either<PathError, Path<*>> =
+	propertyLevel.foldLeft(isRootPathObject(entityPath) as Either<PathError, Path<*>>) { entity, property ->
 		entity.flatMap { getProperty(it, property) }
 	}
 
 
-fun replacePath(filters: Set<PathFilter>, pathAliases: Map<String, String>): Set<PathFilter> =
+fun replacePathAliases(filters: Set<PathFilter>, pathAliases: Map<String, String>): Set<PathFilter> =
 	filters.map { it.copy(path = pathAliases[it.path] ?: it.path) }.toSet()
 
 fun splitLevel(path: String): ListK<String> = path.split("\\.".toRegex()).k()
 
-fun convert(rootPath: EntityPathBase<*>, filter: PathFilter): Either<PathError, QueryDslPathFilter> =
-	either {
-		QueryDslPathFilter(
-			path = getProperty(rootPath, splitLevel(filter.path)).bind(),
-			operator = fromAlias(filter.operator).mapLeft { PathError("This operator ${filter.operator} is unsupported") }.bind(),
-			value = ConstantImpl.create(filter.value)
-		)
+fun convertSingle(entityPath: EntityPathBase<*>, filter: PathFilter): Either<PathError, QueryDslPathFilter> =
+	runBlocking {
+		either {
+			QueryDslPathFilter(
+				path = getProperty(entityPath, splitLevel(filter.path)).bind(),
+				operator = fromAlias(filter.operator).mapLeft { PathError("This operator ${filter.operator} is unsupported") }.bind(),
+				value = ConstantImpl.create(filter.value)
+			)
+		}
 	}
 
 
 // TODO support filter types
 //  Number, Date, String, Boolean, Enumeration, Collection ...
-suspend fun convertPathFilter(rootPath: EntityPathBase<*>, filters: Set<PathFilter>): Set<Either<PathError, QueryDslPathFilter>> =
-	(::convert)(rootPath).let(filters::map).toSet()
+fun convertFilters(entityPath: EntityPathBase<*>, filters: Set<PathFilter>): Set<Either<PathError, QueryDslPathFilter>> =
+	(::convertSingle)(entityPath).let(filters::map).toSet()
+
+fun QueryDslPathFilter.toOperation(): BooleanOperation = Expressions.booleanOperation(operator, path, value)
 
 
 //@Suppress(names = ["UNCHECKED_CAST"])
