@@ -1,21 +1,20 @@
+/*
 package club.geek66.querydsl
 
-import arrow.core.Either
-import arrow.syntax.function.invoke
-import club.geek66.querydsl.PathHandler.getSubPath
 import club.geek66.querydsl.db.QUser
-import com.querydsl.core.types.Path
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import javax.persistence.Entity
 import javax.persistence.Id
 
+*/
 /**
  * @author: orange
  * @date: 2020/12/3
  * @time: 下午3:46
  * @copyright: Copyright 2020 by orange
- */
+ *//*
+
 
 @Entity
 class People {
@@ -53,7 +52,7 @@ class Province {
 
 }
 
-class PathHandlerTest {
+class PathTest {
 
 	@Test
 	fun testGetPath() {
@@ -73,7 +72,7 @@ class PathHandlerTest {
 			Assertions.assertTrue(unknown.isLeft())
 		}
 
-		val function: (propExpression: String) -> Either<PathHandler.FindSubPathError, Path<*>> = (PathHandler::getSubPath)(QUser.user)
+		// val function: (propExpression: String) -> Either<club.geek66.querydsl.PathHandler.Path.FindSubPathError, Path<*>> = (club.geek66.querydsl.Path::getSubPath)(QUser.user)
 	}
 
-}
+}*/
