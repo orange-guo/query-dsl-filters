@@ -17,9 +17,9 @@ internal class PathKtTest {
 
 	@Test
 	fun withPathMap() {
-		replacePathAliases(mapOf("userAddressId" to "user.address.id"), setOf(PathFilter("userAddressId", "=", 3))).let {
+		replacePathAliases(mapOf("addressId" to "address.id"), setOf(PathFilter("addressId", "=", 3))).let {
 			Assertions.assertEquals(it.size, 1)
-			Assertions.assertEquals(it.first(), PathFilter("user.address.id", "=", 3))
+			Assertions.assertEquals(it.first(), PathFilter("address.id", "=", 3))
 		}
 
 		data class UserDto(val jobIndustryName: String)
@@ -29,7 +29,7 @@ internal class PathKtTest {
 			target = user.job.industry.name
 		)
 		assertEquals("jobIndustryName", mapping.sourcePath())
-		assertEquals("user.job.industry.name", mapping.targetPath())
+		assertEquals("job.industry.name", mapping.targetPath())
 	}
 
 }
