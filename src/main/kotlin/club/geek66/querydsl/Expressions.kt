@@ -14,6 +14,5 @@ fun generateExpressions(entityPath: EntityPathBase<*>, pathAliases: Map<String, 
 			}.toSet()
 	}
 
-fun generateExpression(entityPath: EntityPathBase<*>, pathMapping: Set<PathMapping>, pathFilters: Set<PathFilter>): Set<Either<PathError, BooleanExpression>> {
-
-}
+fun generateExpressions(entityPath: EntityPathBase<*>, pathMapping: Set<PathMapping>, pathFilters: Set<PathFilter>): Set<Either<PathError, BooleanExpression>> =
+	generateExpressions(entityPath, pathMapping.map { Pair(it.sourcePath(), it.targetPath()) }.toTypedArray().let(::mapOf), pathFilters)

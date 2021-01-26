@@ -1,15 +1,13 @@
 package club.geek66.querydsl
 
-import arrow.core.Either
-import arrow.core.ListK
-import arrow.core.Nel
+import arrow.core.*
 import arrow.core.computations.either
 import arrow.core.extensions.list.foldable.foldLeft
-import arrow.core.flatMap
-import arrow.core.k
 import arrow.syntax.function.invoke
 import com.querydsl.core.types.ConstantImpl
+import com.querydsl.core.types.Ops
 import com.querydsl.core.types.Path
+import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.core.types.dsl.BooleanOperation
 import com.querydsl.core.types.dsl.EntityPathBase
 import com.querydsl.core.types.dsl.Expressions
@@ -80,7 +78,7 @@ fun convertSingle(entityPath: EntityPathBase<*>, filter: PathFilter): Either<Pat
 
 
 // TODO support filter types
-//  Number, Date, String, Boolean, Enumeration, CoQllection ...
+//  Number, Date, String, Boolean, Enumeration, Collection ...
 fun convertFilters(entityPath: EntityPathBase<*>, filters: Set<PathFilter>): Set<Either<PathError, QueryDslPathFilter>> =
 	(::convertSingle)(entityPath).let(filters::map).toSet()
 
@@ -91,12 +89,22 @@ data class PathMapping(
 	val target: Path<*>,
 )
 
-fun PathMapping.sourcePath(): String = source.foldLeft("") { x, y ->
-	if (x.isEmpty()) y.name else "$x.${y.name}"
+fun Nel<String>.toPath() = foldLeft("") { x, y ->
+	if (x.isEmpty()) y else "$x.$y"
 }
 
-fun PathMapping.targetPath(): String = target.toString()
+fun PathMapping.sourcePath(): String =
+	source.map(KProperty<*>::name).let(Nel<String>::toPath)
 
+fun PathMapping.targetPath(): String =
+	Nel.fromList(target.toString().split("\\.".toRegex()).drop(1)).map(Nel<String>::toPath).getOrElse { "" }
+
+
+fun List<BooleanExpression>.mergeByAnd(): BooleanExpression =
+	foldLeft(Expressions.booleanOperation(Ops.EQ, ConstantImpl.create(1), ConstantImpl.create(1)), BooleanExpression::and)
+
+fun List<BooleanExpression>.mergeByOr(): BooleanExpression =
+	foldLeft(Expressions.booleanOperation(Ops.EQ, ConstantImpl.create(1), ConstantImpl.create(1)), BooleanExpression::or)
 // annotation class Mapper(val value: Path<*>)
 
 //@Suppress(names = ["UNCHECKED_CAST"])

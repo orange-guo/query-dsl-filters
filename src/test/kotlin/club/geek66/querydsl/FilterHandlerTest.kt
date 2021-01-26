@@ -1,12 +1,12 @@
-/*
 package club.geek66.querydsl
 
+import arrow.core.Either
+import arrow.core.Nel
 import arrow.core.nel
-import club.geek66.querydsl.db.Country
-import club.geek66.querydsl.db.Orders
-import club.geek66.querydsl.db.QUser
-import club.geek66.querydsl.db.User
+import arrow.core.or
+import club.geek66.querydsl.db.*
 import club.geek66.querydsl.db.UserRepository
+import com.querydsl.core.types.dsl.BooleanExpression
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,6 +15,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import kotlin.math.exp
 import kotlin.test.Test
 
 @EntityScan
@@ -38,21 +39,12 @@ class FilterHandlerTest {
 
 	@Test
 	fun testStringLike() {
-		User {
-			name = "Jack"
-		}.let(repo::save)
-		val savedUser = generateFilterExpression(QUser.user, PathFilter("name", "LIKE", "Jack").nel().toSet())
-			.let(repo::findAll)
-			.first()!!
-		Assertions.assertEquals("Jack", savedUser.name)
+
 	}
 
-	@Test
+	/*@Test
 	fun testEnumEq() {
-		User {
-			name = "Smith"
-			country = Country.US
-		}.let(repo::save)
+
 
 		generateFilterExpression(QUser.user, PathFilter("country", "EQ", "US").nel().toSet())
 			.let(repo::findAll)
@@ -120,7 +112,6 @@ class FilterHandlerTest {
 			.let { nameLikeTUsers ->
 				Assertions.assertEquals(2, nameLikeTUsers.size)
 			}
-	}
+	}*/
 
 }
-*/

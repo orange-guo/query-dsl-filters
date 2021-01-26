@@ -31,7 +31,7 @@ class User {
 	@OneToOne(cascade = [CascadeType.ALL])
 	lateinit var order: Orders
 
-	@ManyToOne
+	@ManyToOne(cascade = [CascadeType.ALL])
 	lateinit var job: Job
 
 }

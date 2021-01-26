@@ -1,6 +1,8 @@
 package club.geek66.querydsl
 
+import arrow.core.nel
 import club.geek66.querydsl.db.QUser
+import club.geek66.querydsl.db.QUser.user
 import com.querydsl.core.types.ConstantImpl
 import com.querydsl.core.types.Ops
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -18,15 +20,15 @@ internal class QueryDslKtTest {
 
 	@Test
 	fun isRootPathObject() {
-		assertTrue(filterRootPath(QUser.user).isRight())
-		assertTrue(filterRootPath(QUser.user.order).isLeft())
+		assertTrue(filterRootPath(user).isRight())
+		assertTrue(filterRootPath(user.order).isLeft())
 	}
 
 	@Test
 	fun getProperty() {
-		getProperty(QUser.user, "country").let {
+		getProperty(user, "country").let {
 			assertTrue(it.isRight())
-			assertEquals(it.orNull(), QUser.user.country)
+			assertEquals(it.orNull(), user.country)
 		}
 	}
 
@@ -36,9 +38,9 @@ internal class QueryDslKtTest {
 
 	@Test
 	fun getProperty2() {
-		getProperty(QUser.user, listOf("job", "industry", "name")).let {
+		getProperty(user, listOf("job", "industry", "name")).let {
 			assertTrue(it.isRight())
-			assertEquals(QUser.user.job.industry.name, it.orNull())
+			assertEquals(user.job.industry.name, it.orNull())
 		}
 	}
 
@@ -54,7 +56,21 @@ internal class QueryDslKtTest {
 
 	@Test
 	fun convertSingle() {
-		assertEquals(QueryDslPathFilter(QUser.user.name, Ops.EQ, ConstantImpl.create("Jack")), convertSingle(QUser.user, PathFilter("name", "EQ", "Jack")).orNull())
+		assertEquals(QueryDslPathFilter(user.name, Ops.EQ, ConstantImpl.create("Jack")), convertSingle(user, PathFilter("name", "EQ", "Jack")).orNull())
+	}
+
+	@Test
+	fun pathMapping() {
+		data class UserDto(
+			val jobIndustryName: String
+		)
+		PathMapping(
+			source = UserDto::jobIndustryName.nel(),
+			target = user.job.industry.name
+		).let {
+			assertEquals("jobIndustryName", it.sourcePath())
+			assertEquals("job.industry.name", it.targetPath())
+		}
 	}
 
 	@Test

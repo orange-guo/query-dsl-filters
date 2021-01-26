@@ -20,7 +20,7 @@ val operatorAliases = mapOf(
 	"<" to Ops.LT, "LT" to Ops.LT,
 	">=" to Ops.GOE, "GOE" to Ops.GOE,
 	"<=" to Ops.LOE, "LOE" to Ops.LOE,
-	"==" to Ops.EQ, "EQ" to Ops.EQ,
+	"=" to Ops.EQ, "EQ" to Ops.EQ,
 	"!=" to Ops.NE, "NE" to Ops.NE,
 	"LIKE" to Ops.LIKE, "ILIKE" to Ops.LIKE_IC
 )
