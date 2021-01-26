@@ -9,13 +9,6 @@ import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
 
-/**
- *
- * @author: 郭相成
- * @date: 2021/1/26
- * @time: 20:51
- * @copyright: Copyright 2021 by 郭相成
- */
 internal class ExpressionsKtTest {
 
 	@Test
