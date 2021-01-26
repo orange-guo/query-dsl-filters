@@ -18,8 +18,8 @@ internal class QueryDslKtTest {
 
 	@Test
 	fun isRootPathObject() {
-		assertTrue(isRootPathObject(QUser.user).isRight())
-		assertTrue(isRootPathObject(QUser.user.order).isLeft())
+		assertTrue(filterRootPath(QUser.user).isRight())
+		assertTrue(filterRootPath(QUser.user.order).isLeft())
 	}
 
 	@Test
@@ -44,7 +44,7 @@ internal class QueryDslKtTest {
 
 	@Test
 	fun replacePathAliases() {
-		assertEquals(setOf(PathFilter(path = "job.industry.name", operator = "EQ", value = "Teacher")), replacePathAliases(setOf(PathFilter(path = "jobIndustryName", operator = "EQ", value = "Teacher")), mapOf("jobIndustryName" to "job.industry.name")))
+		assertEquals(setOf(PathFilter(path = "job.industry.name", operator = "EQ", value = "Teacher")), replacePathAliases(mapOf("jobIndustryName" to "job.industry.name"), setOf(PathFilter(path = "jobIndustryName", operator = "EQ", value = "Teacher"))))
 	}
 
 	@Test
