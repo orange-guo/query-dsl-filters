@@ -40,10 +40,10 @@ jobs:
           java-version: 11
 
       - name: Unit test
-        run: ./gradlew test
+        run: gradle test
 
       - name: Packing jar
-        run: ./gradlew jar
+        run: gradle jar
 
       - name: Upload aritifacts
         uses: actions/upload-artifact@v2
