@@ -1,7 +1,6 @@
 package club.geek66.querydsl
 
 import arrow.core.nel
-import club.geek66.querydsl.db.QUser
 import club.geek66.querydsl.db.QUser.user
 import com.querydsl.core.types.ConstantImpl
 import com.querydsl.core.types.Ops
@@ -46,7 +45,7 @@ internal class QueryDslKtTest {
 
 	@Test
 	fun replacePathAliases() {
-		assertEquals(setOf(PathFilter(path = "job.industry.name", operator = "EQ", value = "Teacher")), replacePathAliases(mapOf("jobIndustryName" to "job.industry.name"), setOf(PathFilter(path = "jobIndustryName", operator = "EQ", value = "Teacher"))))
+		assertEquals(setOf(PathExpFilter(path = "job.industry.name", operator = "EQ", value = "Teacher")), replacePathAliases(mapOf("jobIndustryName" to "job.industry.name"), setOf(PathExpFilter(path = "jobIndustryName", operator = "EQ", value = "Teacher"))))
 	}
 
 	@Test
@@ -56,20 +55,20 @@ internal class QueryDslKtTest {
 
 	@Test
 	fun convertSingle() {
-		assertEquals(QueryDslPathFilter(user.name, Ops.EQ, ConstantImpl.create("Jack")), convertSingle(user, PathFilter("name", "EQ", "Jack")).orNull())
+		assertEquals(QueryDslPathExpFilter(user.name, Ops.EQ, ConstantImpl.create("Jack")), convertSingle(user, PathExpFilter("name", "EQ", "Jack")).orNull())
 	}
 
 	@Test
 	fun pathMapping() {
 		data class UserDto(
-			val jobIndustryName: String
+			val jobIndustryName: String,
 		)
-		PathMapping(
+		QueryDslPathBinding(
 			source = UserDto::jobIndustryName.nel(),
 			target = user.job.industry.name
 		).let {
-			assertEquals("jobIndustryName", it.sourcePath())
-			assertEquals("job.industry.name", it.targetPath())
+			assertEquals("jobIndustryName", it.showSource())
+			assertEquals("job.industry.name", it.showTarget())
 		}
 	}
 

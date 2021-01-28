@@ -1,6 +1,5 @@
 package club.geek66.querydsl
 
-import arrow.core.Nel
 import club.geek66.querydsl.db.QUser.user
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -17,19 +16,19 @@ internal class PathKtTest {
 
 	@Test
 	fun withPathMap() {
-		replacePathAliases(mapOf("addressId" to "address.id"), setOf(PathFilter("addressId", "=", 3))).let {
+		replacePathAliases(mapOf("addressId" to "address.id"), setOf(PathExpFilter("addressId", "=", 3))).let {
 			Assertions.assertEquals(it.size, 1)
-			Assertions.assertEquals(it.first(), PathFilter("address.id", "=", 3))
+			Assertions.assertEquals(it.first(), PathExpFilter("address.id", "=", 3))
 		}
 
 		data class UserDto(val jobIndustryName: String)
 
-		val mapping = PathMapping(
+		val mapping = QueryDslPathBinding(
 			source = Nel(UserDto::jobIndustryName),
 			target = user.job.industry.name
 		)
-		assertEquals("jobIndustryName", mapping.sourcePath())
-		assertEquals("job.industry.name", mapping.targetPath())
+		assertEquals("jobIndustryName", mapping.showSource())
+		assertEquals("job.industry.name", mapping.showTarget())
 	}
 
 }

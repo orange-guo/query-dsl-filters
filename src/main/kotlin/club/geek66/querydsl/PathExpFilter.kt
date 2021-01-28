@@ -10,13 +10,13 @@ import com.querydsl.core.types.Path
  * @time: 上午9:52
  * @copyright: Copyright 2020 by orange
  */
-data class PathFilter(
+data class PathExpFilter(
 	val path: String,
 	val operator: String,
 	val value: Any? = null,
 )
 
-data class QueryDslPathFilter(
+data class QueryDslPathExpFilter(
 	val path: Path<*>,
 	val operator: Ops,
 	val value: Constant<*>? = null,

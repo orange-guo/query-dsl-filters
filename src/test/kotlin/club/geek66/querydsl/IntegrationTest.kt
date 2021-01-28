@@ -47,8 +47,8 @@ internal class IntegrationTest {
 
 		val expression: BooleanExpression = generateExpressions(
 			QUser.user,
-			setOf(PathMapping(UserDto::jobIndustryName.nel(), QUser.user.job.industry.name)),
-			PathFilter(path = "jobIndustryName", "=", "JAVA").nel().toSet()
+			setOf(QueryDslPathBinding(UserDto::jobIndustryName.nel(), QUser.user.job.industry.name)),
+			PathExpFilter(path = "jobIndustryName", "=", "JAVA").nel().toSet()
 		).filterIsInstance<Either.Right<BooleanExpression>>()
 			.map(Either.Right<BooleanExpression>::b).toList().mergeByAnd()
 		val savedUser: User = repo.findAll(expression).first()!!

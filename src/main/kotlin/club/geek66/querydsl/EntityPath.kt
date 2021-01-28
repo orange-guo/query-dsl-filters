@@ -1,18 +1,19 @@
 package club.geek66.querydsl
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.ListK
 import arrow.core.computations.either
 import arrow.core.extensions.list.foldable.foldLeft
+import arrow.core.flatMap
+import arrow.core.k
 import arrow.syntax.function.invoke
 import com.querydsl.core.types.ConstantImpl
-import com.querydsl.core.types.Ops
 import com.querydsl.core.types.Path
-import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.core.types.dsl.BooleanOperation
 import com.querydsl.core.types.dsl.EntityPathBase
 import com.querydsl.core.types.dsl.Expressions
 import kotlinx.coroutines.runBlocking
-import kotlin.reflect.KProperty
+
 
 /**
  *
@@ -25,7 +26,7 @@ data class PathError(val msg: String)
 
 fun filterRootPath(entityPath: EntityPathBase<*>): Either<PathError, EntityPathBase<*>> =
 	when {
-		entityPath.root.type != entityPath.type -> Either.left(PathError("Path $entityPath is not root"))
+		entityPath.run { root.type != type } -> Either.left(PathError("Path $entityPath is not root"))
 		else -> Either.right(entityPath)
 	}
 
@@ -53,9 +54,9 @@ fun getProperty(entityPath: EntityPathBase<*>, propertyLevel: List<String>): Eit
 	}
 
 
-fun replacePathAliases(pathAliases: Map<String, String>, filters: Set<PathFilter>): Set<PathFilter> =
+fun replacePathAliases(pathAliases: Map<String, String>, expressionFilters: Set<PathExpFilter>): Set<PathExpFilter> =
 	(::replaceAlias)(pathAliases).let { replacePathAlias ->
-		filters.map {
+		expressionFilters.map {
 			it.copy(path = replacePathAlias(it.path))
 		}.toSet()
 	}
@@ -63,15 +64,17 @@ fun replacePathAliases(pathAliases: Map<String, String>, filters: Set<PathFilter
 fun replaceAlias(aliasMap: Map<String, String>, alias: String): String =
 	aliasMap[alias] ?: alias
 
-fun splitLevel(path: String): ListK<String> = path.split("\\.".toRegex()).k()
+val pathExpSplit: Regex = "\\.".toRegex()
 
-fun convertSingle(entityPath: EntityPathBase<*>, filter: PathFilter): Either<PathError, QueryDslPathFilter> =
+fun splitLevel(path: String): ListK<String> = path.split(pathExpSplit).k()
+
+fun convertSingle(entityPath: EntityPathBase<*>, expressionFilter: PathExpFilter): Either<PathError, QueryDslPathExpFilter> =
 	runBlocking {
 		either {
-			QueryDslPathFilter(
-				path = getProperty(entityPath, splitLevel(filter.path)).bind(),
-				operator = fromAlias(filter.operator).mapLeft { PathError("This operator ${filter.operator} is unsupported") }.bind(),
-				value = ConstantImpl.create(filter.value)
+			QueryDslPathExpFilter(
+				path = getProperty(entityPath, splitLevel(expressionFilter.path)).bind(),
+				operator = fromAlias(expressionFilter.operator).mapLeft { PathError("This operator ${expressionFilter.operator} is unsupported") }.bind(),
+				value = ConstantImpl.create(expressionFilter.value)
 			)
 		}
 	}
@@ -79,32 +82,12 @@ fun convertSingle(entityPath: EntityPathBase<*>, filter: PathFilter): Either<Pat
 
 // TODO support filter types
 //  Number, Date, String, Boolean, Enumeration, Collection ...
-fun convertFilters(entityPath: EntityPathBase<*>, filters: Set<PathFilter>): Set<Either<PathError, QueryDslPathFilter>> =
-	(::convertSingle)(entityPath).let(filters::map).toSet()
+fun convertFilters(entityPath: EntityPathBase<*>, expressionFilters: Set<PathExpFilter>): Set<Either<PathError, QueryDslPathExpFilter>> =
+	(::convertSingle)(entityPath).let(expressionFilters::map).toSet()
 
-fun QueryDslPathFilter.toOperation(): BooleanOperation = Expressions.booleanOperation(operator, path, value)
-
-data class PathMapping(
-	val source: Nel<KProperty<*>>,
-	val target: Path<*>,
-)
-
-fun Nel<String>.toPath() = foldLeft("") { x, y ->
-	if (x.isEmpty()) y else "$x.$y"
-}
-
-fun PathMapping.sourcePath(): String =
-	source.map(KProperty<*>::name).let(Nel<String>::toPath)
-
-fun PathMapping.targetPath(): String =
-	Nel.fromList(target.toString().split("\\.".toRegex()).drop(1)).map(Nel<String>::toPath).getOrElse { "" }
+fun QueryDslPathExpFilter.toOperation(): BooleanOperation = Expressions.booleanOperation(operator, path, value)
 
 
-fun List<BooleanExpression>.mergeByAnd(): BooleanExpression =
-	foldLeft(Expressions.booleanOperation(Ops.EQ, ConstantImpl.create(1), ConstantImpl.create(1)), BooleanExpression::and)
-
-fun List<BooleanExpression>.mergeByOr(): BooleanExpression =
-	foldLeft(Expressions.booleanOperation(Ops.EQ, ConstantImpl.create(1), ConstantImpl.create(1)), BooleanExpression::or)
 // annotation class Mapper(val value: Path<*>)
 
 //@Suppress(names = ["UNCHECKED_CAST"])
