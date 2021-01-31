@@ -1,12 +1,5 @@
-package club.geek66.querydsl
+package club.geek66.filter.db
 
-import arrow.core.Either
-import arrow.core.Nel
-import arrow.core.nel
-import arrow.core.or
-import club.geek66.querydsl.db.*
-import club.geek66.querydsl.db.UserRepository
-import com.querydsl.core.types.dsl.BooleanExpression
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,7 +8,6 @@ import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
-import kotlin.math.exp
 import kotlin.test.Test
 
 @EntityScan

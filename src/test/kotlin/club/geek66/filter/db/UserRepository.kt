@@ -1,4 +1,4 @@
-package club.geek66.querydsl.db
+package club.geek66.filter.db
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.querydsl.QuerydslPredicateExecutor

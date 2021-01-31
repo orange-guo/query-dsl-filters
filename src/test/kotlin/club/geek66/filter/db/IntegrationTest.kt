@@ -1,8 +1,12 @@
-package club.geek66.querydsl
+package club.geek66.filter.db
 
 import arrow.core.Either
 import arrow.core.nel
-import club.geek66.querydsl.db.*
+import club.geek66.filter.PathFilter
+import club.geek66.filter.db.*
+import club.geek66.filter.querydsl.QueryDslBinding
+import club.geek66.filter.querydsl.combineByAnd
+import club.geek66.filter.querydsl.generateExpressions
 import com.querydsl.core.types.dsl.BooleanExpression
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -42,15 +46,15 @@ internal class IntegrationTest {
 		}.let(repo::save)
 
 		data class UserDto(
-			val jobIndustryName: String
+			val jobIndustryName: String,
 		)
 
 		val expression: BooleanExpression = generateExpressions(
 			QUser.user,
-			setOf(QueryDslPathBinding(UserDto::jobIndustryName.nel(), QUser.user.job.industry.name)),
-			PathExpFilter(path = "jobIndustryName", "=", "JAVA").nel().toSet()
+			setOf(QueryDslBinding(UserDto::jobIndustryName.nel(), QUser.user.job.industry.name)),
+			PathFilter(path = "jobIndustryName", "=", "JAVA").nel().toSet()
 		).filterIsInstance<Either.Right<BooleanExpression>>()
-			.map(Either.Right<BooleanExpression>::b).toList().mergeByAnd()
+			.map(Either.Right<BooleanExpression>::b).toList().combineByAnd()
 		val savedUser: User = repo.findAll(expression).first()!!
 		Assertions.assertEquals("Smith", savedUser.name)
 	}

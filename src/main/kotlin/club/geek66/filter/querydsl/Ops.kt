@@ -1,6 +1,6 @@
-package club.geek66.querydsl
+package club.geek66.filter.querydsl
 
-import arrow.core.Either
+import club.geek66.filter.Maybe
 import com.querydsl.core.types.Ops
 
 /**
@@ -9,13 +9,10 @@ import com.querydsl.core.types.Ops
  * @time: 下午4:11
  * @copyright: Copyright 2020 by orange
  */
+fun parseOps(ops: String): Maybe<Ops> =
+	Maybe.fromNullable(operatorMap[ops])
 
-typealias Maybe<T> = Either<Unit, T>
-
-fun fromAlias(operatorAlias: String): Maybe<Ops> =
-	Maybe.fromNullable(operatorAliases[operatorAlias])
-
-val operatorAliases = mapOf(
+val operatorMap = mapOf(
 	">" to Ops.GT, "GT" to Ops.GT,
 	"<" to Ops.LT, "LT" to Ops.LT,
 	">=" to Ops.GOE, "GOE" to Ops.GOE,

@@ -1,5 +1,6 @@
-package club.geek66.querydsl
+package club.geek66.filter.querydsl
 
+import club.geek66.filter.Maybe
 import com.querydsl.core.types.Ops
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -10,24 +11,25 @@ import org.junit.jupiter.api.Test
  * @time: 下午4:13
  * @copyright: Copyright 2020 by orange
  */
-internal class OperatorTest {
+internal class OpsKtTest {
 
 	@Test
-	fun testParseOps() {
-		fromAlias(">").let {
+	fun withParse() {
+		parseOps(">").let {
 			Assertions.assertEquals(Maybe.right(Ops.GT), it)
 		}
-		fromAlias("<").let {
+		parseOps("<").let {
 			Assertions.assertEquals(Maybe.right(Ops.LT), it)
 		}
-		fromAlias(">=").let {
+		parseOps(">=").let {
 			Assertions.assertEquals(Maybe.right(Ops.GOE), it)
 		}
-		fromAlias("<=").let {
+		parseOps("<=").let {
 			Assertions.assertEquals(Maybe.right(Ops.LOE), it)
 		}
-		fromAlias("xxx").let {
+		parseOps("xxx").let {
 			Assertions.assertEquals(Maybe.left(Unit), it)
 		}
 	}
+
 }

@@ -1,4 +1,4 @@
-package club.geek66.querydsl.db
+package club.geek66.filter.db
 
 /**
  * @author: orange
@@ -7,5 +7,6 @@ package club.geek66.querydsl.db
  * @copyright: Copyright 2020 by orange
  */
 enum class Country {
+
 	CN, JP, KR, US
 }

@@ -1,4 +1,4 @@
-package club.geek66.querydsl.db
+package club.geek66.filter.db
 
 import javax.persistence.CascadeType
 import javax.persistence.Entity
