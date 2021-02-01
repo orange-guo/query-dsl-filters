@@ -26,7 +26,7 @@ fun List<BooleanExpression>.combineByAnd(): BooleanExpression =
 	fold(CombineBooleanExpressionMonoid(BooleanExpression::and))
 
 fun List<BooleanExpression>.combineByOr(): BooleanExpression =
-	fold(CombineBooleanExpressionMonoid(BooleanExpression::and))
+	fold(CombineBooleanExpressionMonoid(BooleanExpression::or))
 
 fun generateExpressions(entityPath: EntityPathBase<*>, pathAliases: Map<String, String>, pathExpressionFilters: Set<PathFilter>): Set<Either<PathError, BooleanExpression>> =
 	(::convertFilters)(entityPath).let { convertFilter ->
