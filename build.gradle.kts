@@ -33,6 +33,7 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+	testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC")
 	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa:2.3.2.RELEASE")
 	testImplementation("org.springframework.boot:spring-boot-starter:2.3.2.RELEASE")
 	testImplementation("org.springframework.boot:spring-boot-starter-test:2.3.2.RELEASE") {
