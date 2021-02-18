@@ -1,6 +1,16 @@
-package club.geek66.filter.db
+package club.geek66.filter.integration
 
+import arrow.core.Either
+import arrow.core.nel
+import arrow.syntax.function.invoke
+import club.geek66.filter.PathFilter
+import club.geek66.filter.integration.*
+import club.geek66.filter.querydsl.PathMapper
+import club.geek66.filter.querydsl.combineByAnd
+import club.geek66.filter.querydsl.generateExpressions
+import com.querydsl.core.types.dsl.BooleanExpression
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
@@ -8,42 +18,75 @@ import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
-import kotlin.test.Test
 
 @EntityScan
 @Transactional
 @TestConfiguration
 @EnableAutoConfiguration
 @ExtendWith(SpringExtension::class)
-class FilterHandlerTest {
+internal class IntegrationTest {
 
 	@Autowired
-	private lateinit var repo: UserRepository
+	lateinit var repo: UserRepository
+
+	internal data class UserDto(
+		val jobIndustryName: String,
+	)
 
 	@Test
-	fun makeSureDbIsEmpty() {
+	fun testDb() {
 		Assertions.assertEquals(0, repo.findAll().size)
-
 		repo.save(User { name = "Jack" })
-
 		Assertions.assertEquals(1, repo.findAll().size)
 	}
 
 	@Test
-	fun testStringLike() {
+	fun test() {
+		User {
+			name = "Smith"
+			country = Country.US
+			job = Job {
+				name = "JAVA-SERVER"
+				industry = Industry {
+					name = "JAVA"
+				}
+			}
+		}.apply {
+			job.users = listOf(this)
+			job.industry.jobs = listOf(job)
+		}.let(repo::save)
 
+		val generate = (::generateExpressions)(QUser.user)(setOf(PathMapper(UserDto::jobIndustryName.nel(), QUser.user.job.industry.name)))
+
+		// CascadingQuery
+		generate(
+			PathFilter(path = "jobIndustryName", operator = "=", value = "JAVA").nel().toSet()
+		).filterIsInstance<Either.Right<BooleanExpression>>()
+			.map(Either.Right<BooleanExpression>::b)
+			.toList()
+			.combineByAnd()
+			.let(repo::findAll)
+			.first()!!
+			.run {
+				Assertions.assertEquals("Smith", name)
+			}
+
+		// EnumEq not support
+		/*generate(
+			PathFilter(path = "country", operator = "=", "US").nel().toSet()
+		).filterIsInstance<Either.Right<BooleanExpression>>()
+			.map(Either.Right<BooleanExpression>::b)
+			.toList()
+			.combineByAnd()
+			.let(repo::findAll)
+			.first()!!
+			.run {
+				Assertions.assertEquals("Smith", name)
+			}*/
+		//
 	}
 
 	/*@Test
-	fun testEnumEq() {
-
-
-		generateFilterExpression(QUser.user, PathFilter("country", "EQ", "US").nel().toSet())
-			.let(repo::findAll)
-			.first()!!.let { smith ->
-				Assertions.assertEquals(Country.US, smith.country)
-			}
-	}
 
 	@Test
 	fun testCascadingQuery() {

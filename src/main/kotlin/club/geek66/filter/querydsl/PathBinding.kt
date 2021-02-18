@@ -13,20 +13,19 @@ import kotlin.reflect.KProperty
  * @time: 下午4:58
  * @copyright: Copyright 2021 by orange
  */
-object PathMonoid : StringMonoid {
-
-	override fun String.combine(b: String): String =
-		takeIf(String::isNotEmpty)?.run { "$this.$b" } ?: b
-
-}
-
-data class QueryDslBinding(
-	val source: Nel<KProperty<*>>,
-	val target: Path<*>,
+data class PathMapper(
+	val src: Nel<KProperty<*>>,
+	val dst: Path<*>,
 )
 
-fun QueryDslBinding.showSource(): String =
-	source.map(KProperty<*>::name).fold(PathMonoid)
+fun PathMapper.showSource(): String = src.map(KProperty<*>::name).fold(PathMonoid)
 
-fun QueryDslBinding.showTarget(): String =
-	target.toString().split(pathExpSplit).drop(1).fold(PathMonoid)
+fun PathMapper.showTarget(): String = dst.toString().split(pathExpSplit).drop(1).fold(PathMonoid)
+
+fun PathMapper.toAliasPair(): Pair<String, String> = Pair(showSource(), showTarget())
+
+object PathMonoid : StringMonoid {
+
+	override fun String.combine(b: String): String = takeIf(String::isNotEmpty)?.run { "$this.$b" } ?: b
+
+}

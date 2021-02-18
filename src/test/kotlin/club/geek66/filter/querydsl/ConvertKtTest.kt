@@ -1,7 +1,7 @@
 package club.geek66.filter.querydsl
 
 import club.geek66.filter.PathFilter
-import club.geek66.filter.db.QUser
+import club.geek66.filter.integration.QUser
 import com.querydsl.core.types.ConstantImpl
 import com.querydsl.core.types.Ops
 import org.junit.jupiter.api.Assertions

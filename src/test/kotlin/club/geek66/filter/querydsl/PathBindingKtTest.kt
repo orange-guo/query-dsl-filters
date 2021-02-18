@@ -1,7 +1,7 @@
 package club.geek66.filter.querydsl
 
 import arrow.core.nel
-import club.geek66.filter.db.QUser
+import club.geek66.filter.integration.QUser
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -19,9 +19,9 @@ internal class PathBindingKtTest {
 		data class UserDto(
 			val jobIndustryName: String,
 		)
-		QueryDslBinding(
-			source = UserDto::jobIndustryName.nel(),
-			target = QUser.user.job.industry.name
+		PathMapper(
+			src = UserDto::jobIndustryName.nel(),
+			dst = QUser.user.job.industry.name
 		).let {
 			assertEquals("jobIndustryName", it.showSource())
 			assertEquals("job.industry.name", it.showTarget())

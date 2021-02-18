@@ -1,4 +1,4 @@
-package club.geek66.filter.db/*
+package club.geek66.filter/*
 package club.geek66.querydsl
 
 import club.geek66.querydsl.db.QUser

@@ -3,7 +3,7 @@ package club.geek66.filter.querydsl
 import arrow.core.Either
 import arrow.core.nel
 import club.geek66.filter.PathFilter
-import club.geek66.filter.db.QUser.user
+import club.geek66.filter.integration.QUser.user
 import com.querydsl.core.types.ConstantImpl
 import com.querydsl.core.types.Ops
 import com.querydsl.core.types.dsl.BooleanExpression
@@ -48,7 +48,7 @@ internal class ExpressionsKtTest {
 
 		val expressions: Set<BooleanExpression> = generateExpressions(
 			user,
-			setOf(QueryDslBinding(source = UserDto::jobIndustryName.nel(), target = user.job.industry.name)),
+			setOf(PathMapper(src = UserDto::jobIndustryName.nel(), dst = user.job.industry.name)),
 			setOf(PathFilter(path = "jobIndustryName", operator = "=", "Java"))
 		).filterIsInstance<Either.Right<BooleanExpression>>().map(Either.Right<BooleanExpression>::b).toSet()
 

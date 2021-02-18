@@ -1,6 +1,6 @@
 package club.geek66.filter.querydsl
 
-import club.geek66.filter.db.QUser.user
+import club.geek66.filter.integration.QUser.user
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

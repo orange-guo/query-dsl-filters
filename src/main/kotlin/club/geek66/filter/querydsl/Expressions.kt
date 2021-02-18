@@ -11,7 +11,7 @@ import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.core.types.dsl.EntityPathBase
 import com.querydsl.core.types.dsl.Expressions
 
-data class CombineBooleanExpressionMonoid(
+data class CombineBoolExpMonoid(
 	val combine: (BooleanExpression, BooleanExpression) -> BooleanExpression,
 ) : Monoid<BooleanExpression> {
 
@@ -23,19 +23,16 @@ data class CombineBooleanExpressionMonoid(
 }
 
 fun List<BooleanExpression>.combineByAnd(): BooleanExpression =
-	fold(CombineBooleanExpressionMonoid(BooleanExpression::and))
+	fold(CombineBoolExpMonoid(BooleanExpression::and))
 
 fun List<BooleanExpression>.combineByOr(): BooleanExpression =
-	fold(CombineBooleanExpressionMonoid(BooleanExpression::or))
+	fold(CombineBoolExpMonoid(BooleanExpression::or))
 
-fun generateExpressions(entityPath: EntityPathBase<*>, pathAliases: Map<String, String>, pathExpressionFilters: Set<PathFilter>): Set<Either<PathError, BooleanExpression>> =
-	(::convertFilters)(entityPath).let { convertFilter ->
-		withReplacePathAliases(pathAliases, pathExpressionFilters)
-			.let(convertFilter)
+fun generateExpressions(entityPath: EntityPathBase<*>, binding: Set<PathMapper>, filters: Set<PathFilter>): Set<Either<PathError, BooleanExpression>> =
+	(::convertFilters)(entityPath).let { func ->
+		withReplacePathAliases(binding.map(PathMapper::toAliasPair).toTypedArray().let(::mapOf), filters)
+			.let(func)
 			.map {
 				it.map(QueryDslFilter::toOperation)
 			}.toSet()
 	}
-
-fun generateExpressions(entityPath: EntityPathBase<*>, binding: Set<QueryDslBinding>, pathExpressionFilters: Set<PathFilter>): Set<Either<PathError, BooleanExpression>> =
-	generateExpressions(entityPath, binding.map { Pair(it.showSource(), it.showTarget()) }.toTypedArray().let(::mapOf), pathExpressionFilters)

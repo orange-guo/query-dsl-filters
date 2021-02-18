@@ -34,13 +34,13 @@ fun convertSingle(entityPath: EntityPathBase<*>, expFilter: PathFilter): Either<
 fun convertFilters(entityPath: EntityPathBase<*>, expressionFilters: Set<PathFilter>): Set<Either<PathError, QueryDslFilter>> =
 	(::convertSingle)(entityPath).let(expressionFilters::map).toSet()
 
-fun replaceAlias(aliasMap: Map<String, String>, alias: String): String =
+fun getByAliasOrElseItself(aliasMap: Map<String, String>, alias: String): String =
 	aliasMap[alias] ?: alias
 
 fun withReplacePathAliases(pathAliases: Map<String, String>, expressionFilters: Set<PathFilter>): Set<PathFilter> =
-	(::replaceAlias)(pathAliases).let { replacePathAlias ->
+	(::getByAliasOrElseItself)(pathAliases).let { getByAlias ->
 		expressionFilters.map {
-			it.copy(path = replacePathAlias(it.path))
+			it.copy(path = getByAlias(it.path))
 		}.toSet()
 	}
 
