@@ -14,17 +14,16 @@ import kotlin.test.assertEquals
  */
 internal class PathMappingKtTest {
 
+	data class UserDto(val jobIndustryName: String)
+
 	@Test
 	fun pathBindingTest() {
-
-		data class UserDto(val jobIndustryName: String)
-
-		val binding = PathMapper(
+		val mapper = PathMapper(
 			src = Nel(UserDto::jobIndustryName),
 			dst = user.job.industry.name
 		)
-		assertEquals("jobIndustryName", binding.showSource())
-		assertEquals("job.industry.name", binding.showTarget())
+		assertEquals("jobIndustryName", mapper.showSource())
+		assertEquals("job.industry.name", mapper.showTarget())
 	}
 
 }

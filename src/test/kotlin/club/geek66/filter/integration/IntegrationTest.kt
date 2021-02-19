@@ -33,6 +33,8 @@ internal class IntegrationTest {
 		val jobIndustryName: String,
 	)
 
+	val generate = (::generateExpressions)(QUser.user)
+
 	@Test
 	fun testDb() {
 		Assertions.assertEquals(0, repo.findAll().size)
@@ -41,10 +43,11 @@ internal class IntegrationTest {
 	}
 
 	@Test
-	fun test() {
+	fun byCascade() {
 		User {
 			name = "Smith"
 			country = Country.US
+			money = 5
 			job = Job {
 				name = "JAVA-SERVER"
 				industry = Industry {
@@ -56,10 +59,8 @@ internal class IntegrationTest {
 			job.industry.jobs = listOf(job)
 		}.let(repo::save)
 
-		val generate = (::generateExpressions)(QUser.user)(setOf(PathMapper(UserDto::jobIndustryName.nel(), QUser.user.job.industry.name)))
-
-		// CascadingQuery
 		generate(
+			(setOf(PathMapper(UserDto::jobIndustryName.nel(), QUser.user.job.industry.name))),
 			PathFilter(path = "jobIndustryName", operator = "=", value = "JAVA").nel().toSet()
 		).filterIsInstance<Either.Right<BooleanExpression>>()
 			.map(Either.Right<BooleanExpression>::b)
@@ -70,10 +71,28 @@ internal class IntegrationTest {
 			.run {
 				Assertions.assertEquals("Smith", name)
 			}
+	}
 
-		// EnumEq not support
-		/*generate(
-			PathFilter(path = "country", operator = "=", "US").nel().toSet()
+	@Test
+	fun byEnum() {
+		User {
+			name = "Keven"
+			country = Country.JP
+			money = 5
+			job = Job {
+				name = "PHP-SERVER"
+				industry = Industry {
+					name = "PHP"
+				}
+			}
+		}.apply {
+			job.users = listOf(this)
+			job.industry.jobs = listOf(job)
+		}.let(repo::save)
+
+		generate(
+			emptySet(),
+			PathFilter(path = "country", operator = "=", "JP").nel().toSet()
 		).filterIsInstance<Either.Right<BooleanExpression>>()
 			.map(Either.Right<BooleanExpression>::b)
 			.toList()
@@ -81,72 +100,38 @@ internal class IntegrationTest {
 			.let(repo::findAll)
 			.first()!!
 			.run {
-				Assertions.assertEquals("Smith", name)
-			}*/
-		//
-	}
-
-	/*@Test
-
-	@Test
-	fun testCascadingQuery() {
-		setOf(
-			User {
-				country = Country.US
-				name = "User1"
-				order = Orders().apply {
-					title = "User1's title"
-				}
-			},
-			User {
-				country = Country.US
-				name = "User2"
-				order = Orders().apply {
-					title = "User2's title"
-				}
-			}
-		).let(repo::saveAll)
-
-		generateFilterExpression(QUser.user, PathFilter("order.title", "EQ", "User1's title").nel().toSet())
-			.let(repo::findAll)
-			.first()!!.let { user1 ->
-				Assertions.assertEquals(user1.name, "User1")
-				Assertions.assertEquals(user1.order.title, "User1's title")
+				Assertions.assertEquals("Keven", name)
 			}
 	}
 
 	@Test
-	fun testNumberCompare() {
+	fun byNumber() {
 		User {
+			name = "Thompson"
 			country = Country.US
-			name = "User1"
-			order = Orders().apply {
-				title = "User1's title"
+			job = Job {
+				name = "JAVASCRIPT-BROWSER"
+				industry = Industry {
+					name = "Javascript"
+				}
 			}
 			money = 5L
+		}.apply {
+			job.users = listOf(this)
+			job.industry.jobs = listOf(job)
 		}.let(repo::save)
 
-		generateFilterExpression(QUser.user, PathFilter(path = "money", operator = "GT", value = 4).nel().toSet())
-			.let(repo::findAll).first()!!.let { mooneyGt4User ->
-				Assertions.assertEquals(mooneyGt4User.name, "User1")
-				Assertions.assertEquals(mooneyGt4User.order.title, "User1's title")
+		generate(emptySet(), PathFilter(path = "money", operator = "GT", value = 4).nel().toSet())
+			.filterIsInstance<Either.Right<BooleanExpression>>()
+			.map(Either.Right<BooleanExpression>::b)
+			.toList()
+			.combineByAnd()
+			.let(repo::findAll)
+			.first()!!
+			.run {
+				Assertions.assertEquals("Thompson", name)
+				Assertions.assertEquals("JAVASCRIPT-BROWSER", job.name)
 			}
 	}
-
-	@Test
-	fun testNameLike() {
-		setOf(
-			User { name = "Jack" },
-			User { name = "Tom" },
-			User { name = "Tim" },
-			User { name = "Jobs" }
-		).let(repo::saveAll)
-		generateFilterExpression(QUser.user, PathFilter(path = "name", operator = "LIKE", value = "%T%").nel().toSet())
-			.let(repo::findAll)
-			.toSet()
-			.let { nameLikeTUsers ->
-				Assertions.assertEquals(2, nameLikeTUsers.size)
-			}
-	}*/
 
 }

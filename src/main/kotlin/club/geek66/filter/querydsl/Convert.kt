@@ -10,7 +10,6 @@ import com.querydsl.core.types.dsl.EntityPathBase
 import com.querydsl.core.types.dsl.Expressions
 import kotlinx.coroutines.runBlocking
 
-
 /**
  *
  * @author: orange
@@ -21,10 +20,19 @@ import kotlinx.coroutines.runBlocking
 fun convertSingle(entityPath: EntityPathBase<*>, expFilter: PathFilter): Either<PathError, QueryDslFilter> =
 	runBlocking {
 		either {
+			val path = getProperty(entityPath, splitLevel(expFilter.path)).bind()
+			val value = expFilter.value.let { value ->
+				when {
+					path.type.isEnum -> java.lang.Enum.valueOf((path.type as Class<Enum<*>>), value as String)
+					else -> value
+				}
+			}.let {
+				ConstantImpl.create(it)
+			}
 			QueryDslFilter(
-				path = getProperty(entityPath, splitLevel(expFilter.path)).bind(),
+				path = path,
 				operator = parseOps(expFilter.operator).mapLeft { PathError("This operator ${expFilter.operator} is unsupported") }.bind(),
-				value = ConstantImpl.create(expFilter.value)
+				value = value
 			)
 		}
 	}
@@ -32,16 +40,16 @@ fun convertSingle(entityPath: EntityPathBase<*>, expFilter: PathFilter): Either<
 // TODO support filter types
 //  Number, Date, String, Boolean, Enumeration, Collection ...
 fun convertFilters(entityPath: EntityPathBase<*>, expressionFilters: Set<PathFilter>): Set<Either<PathError, QueryDslFilter>> =
-	(::convertSingle)(entityPath).let(expressionFilters::map).toSet()
+	expressionFilters.map((::convertSingle)(entityPath)).toSet()
 
-fun getByAliasOrElseItself(aliasMap: Map<String, String>, alias: String): String =
-	aliasMap[alias] ?: alias
 
-fun withReplacePathAliases(pathAliases: Map<String, String>, expressionFilters: Set<PathFilter>): Set<PathFilter> =
-	(::getByAliasOrElseItself)(pathAliases).let { getByAlias ->
-		expressionFilters.map {
-			it.copy(path = getByAlias(it.path))
-		}.toSet()
-	}
+fun withReplacePathAliases(pathAliases: Map<String, String>, filters: Set<PathFilter>): Set<PathFilter> =
+	filters.map { filter ->
+		if (pathAliases[filter.path] != null) {
+			filter.copy(path = pathAliases[filter.path]!!)
+		} else {
+			filter
+		}
+	}.toSet()
 
 fun QueryDslFilter.toOperation(): BooleanOperation = Expressions.booleanOperation(operator, path, value)

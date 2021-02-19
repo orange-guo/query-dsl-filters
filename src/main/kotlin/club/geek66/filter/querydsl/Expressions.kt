@@ -29,10 +29,10 @@ fun List<BooleanExpression>.combineByOr(): BooleanExpression =
 	fold(CombineBoolExpMonoid(BooleanExpression::or))
 
 fun generateExpressions(entityPath: EntityPathBase<*>, binding: Set<PathMapper>, filters: Set<PathFilter>): Set<Either<PathError, BooleanExpression>> =
-	(::convertFilters)(entityPath).let { func ->
-		withReplacePathAliases(binding.map(PathMapper::toAliasPair).toTypedArray().let(::mapOf), filters)
-			.let(func)
-			.map {
-				it.map(QueryDslFilter::toOperation)
-			}.toSet()
-	}
+	withReplacePathAliases(
+		binding.map(PathMapper::toAliasPair).let(emptyMap<String, String>()::plus),
+		filters
+	).let((::convertFilters)(entityPath))
+		.map {
+			it.map(QueryDslFilter::toOperation)
+		}.toSet()
