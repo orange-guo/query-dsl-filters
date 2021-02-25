@@ -1,5 +1,4 @@
 # This is a basic workflow to help you get started with Actions
-
 name: CI
 
 # Controls when the action will run. 
@@ -30,14 +29,14 @@ jobs:
         with:
           java-version: 11
 
-      - name: Setup Gradle Dependencies Cache
+      - name: Setup Cache For Gradle Dependencies
         uses: actions/cache@v2
         with:
           path: |
             ~/.gradle/caches
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
 
-      - name: Setup Gradle Wrapper Cache
+      - name: Setup Gradle For Gradle Wrapper
         uses: actions/cache@v2
         with:
           path: ~/.gradle/wrapper
