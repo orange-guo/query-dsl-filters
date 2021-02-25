@@ -29,14 +29,14 @@ jobs:
         with:
           java-version: 11
 
-      - name: Setup Cache For Gradle Dependencies
+      - name: Setup Gradle Dependencies Cache
         uses: actions/cache@v2
         with:
           path: |
             ~/.gradle/caches
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
 
-      - name: Setup Gradle For Gradle Wrapper
+      - name: Setup Gradle Wrapper Cache
         uses: actions/cache@v2
         with:
           path: ~/.gradle/wrapper
