@@ -43,10 +43,10 @@ jobs:
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
       - name: Unit test
-        run: gradle test
+        run: ./gradlew test
 
       - name: Packing jar
-        run: gradle jar
+        run: ./gradlew jar
 
       - name: Upload aritifacts
         uses: actions/upload-artifact@v2
