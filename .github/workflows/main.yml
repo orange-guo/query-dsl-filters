@@ -25,19 +25,23 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Cache multiple paths
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/cache
-            !~/cache/exclude
-            **/node_modules
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/build.gradle.kts') }}
-
-      - name: Set up Jdk 11
+      - name: Setup Jdk
         uses: actions/setup-java@v1
         with:
           java-version: 11
+
+      - name: Setup Gradle Dependencies Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
+
+      - name: Setup Gradle Wrapper Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
       - name: Unit test
         run: gradle test
